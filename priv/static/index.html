@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47" crossorigin="anonymous">
+    <script type="module">
+        import { h, app } from "https://unpkg.com/hyperapp"
+        import {withLogger} from "https://unpkg.com/@hyperapp/logger"
+
+        function onInput(state, [color, i,j]) { 
+            state.leds[i][j] = ({
+                ...state.leds[i][j],
+                color
+            })
+
+            return {
+                ...state,
+                leds: state.leds
+            }
+        }
+
+        function copyFromOrigin(state){
+            const origin = state.leds[0][0]
+            return {
+                ...state,
+                leds: Array(8).fill().map(() => Array(4).fill(origin))
+            }
+        }
+
+        function setRainbow(state){
+            return {
+                ...state, 
+                leds: new Array(8).fill().map((_,i) => 
+                    new Array(4).fill({visibile: true, color: rainbow[i]}))
+            }
+        }
+
+        function enableToggling(state){
+            return {
+                ...state,
+                toggling: !state.toggling
+            }
+        }
+
+        const rainbow = [
+            "#9400d3",
+            "#4b0082",
+            "#0000ff",
+            "#00ff00",
+            "#ffff00",
+            "#ff7f00",
+            "#ff0000",
+            "#000000"
+        ]       
+
+        function leds(state) {
+            return Array(8).fill().map((_, i) =>
+                h("div", { class: `row-${i}` }, Array(4).fill().map((_, j) =>
+                    h("input", { 
+                        type: "color", 
+                        class: {
+                            [`col-${j}`]: true,
+                            visible: state.leds[i][j].color.visible,
+                        },
+                        value: state.leds[i][j].color,
+                        onInput: [onInput, event => ([event.target.value, i, j])]
+                    }))
+                )
+            )
+        }
+
+        app({
+            init: {...setRainbow({}), toggling: false},
+            view: state =>
+                h("main", {}, [
+                    ...leds(state),
+                    h("button", {onClick: copyFromOrigin}, "Copy from 0,0"),
+                    h("button", {onClick: setRainbow}, "Rainbow"),
+                    h("span",{},[
+                        h("input", {type:"checkbox"}, "Toggle"),
+                        "Toggle"
+                    ])
+                ]),
+            node: document.getElementById("app")
+        })
+    </script>
+</head>
+
+<body>
+    <main id="app"></main>
+</body>
+
+</html>
