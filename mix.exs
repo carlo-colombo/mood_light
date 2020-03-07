@@ -45,7 +45,6 @@ defmodule MoodLight.MixProject do
       {:toolshed, "~> 0.2"},
       {:plug_cowboy, "~> 2.0"},
       {:jason, "~> 1.1"},
-      {:css_colors, "~> 0.2.0"},
 
       # Dependencies for all targets except :host
       {:nerves_runtime, "~> 0.6", targets: @all_targets},
