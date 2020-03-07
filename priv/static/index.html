@@ -1,92 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47" crossorigin="anonymous">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/purecss@1.0.1/build/pure-min.css"
+      integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47"
+      crossorigin="anonymous"
+    />
     <script type="module">
-        import { h, app } from "https://unpkg.com/hyperapp"
+      import {
+        h,
+        Component,
+        render
+      } from "https://unpkg.com/preact@latest?module";
 
-        function onInput(state, [color, i,j]) { 
-            state.leds[i][j] = ({
-                ...state.leds[i][j],
-                color
-            })
+      import {
+        useState,
+        useCallback
+      } from "https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module";
 
-            return {
-                ...state,
-                leds: state.leds
-            }
-        }
+      import htm from "https://unpkg.com/htm?module";
 
-        function copyFromOrigin(state){
-            const origin = state.leds[0][0]
-            return {
-                ...state,
-                leds: Array(8).fill().map(() => Array(4).fill(origin))
-            }
-        }
+      const rainbow = [
+        "#9400d3",
+        "#4b0082",
+        "#0000ff",
+        "#00ff00",
+        "#ffff00",
+        "#ff7f00",
+        "#ff0000",
+        "#000000"
+      ];
 
-        function setRainbow(state){
-            return {
-                ...state, 
-                leds: new Array(8).fill().map((_,i) => 
-                    new Array(4).fill({visibile: true, color: rainbow[i]}))
-            }
-        }
+      const html = htm.bind(h);
 
-        function enableToggling(state){
-            return {
-                ...state,
-                toggling: !state.toggling
-            }
-        }
+      function getRainbow() {
+        return new Array(8)
+          .fill()
+          .map((_, i) =>
+            new Array(4).fill({ visibile: true, color: rainbow[i] })
+          );
+      }
 
-        const rainbow = [
-            "#9400d3",
-            "#4b0082",
-            "#0000ff",
-            "#00ff00",
-            "#ffff00",
-            "#ff7f00",
-            "#ff0000",
-            "#000000"
-        ]       
+      const Row = ({ leds }) =>
+        html`
+          <div>
+            ${leds.map(
+              led =>
+                html`
+                  <${Led} ...${led} />
+                `
+            )}
+          </div>
+        `;
 
-        function leds(state) {
-            return Array(8).fill().map((_, i) =>
-                h("div", { class: `row-${i}` }, Array(4).fill().map((_, j) =>
-                    h("input", { 
-                        type: "color", 
-                        class: {
-                            [`col-${j}`]: true,
-                            visible: state.leds[i][j].color.visible,
-                        },
-                        value: state.leds[i][j].color,
-                        onInput: [onInput, event => ([event.target.value, i, j])]
-                    }))
-                )
-            )
-        }
+      const Led = ({ color }) =>
+        html`
+          <input type="color" value=${color} />
+        `;
 
-        app({
-            init: {...setRainbow({}), toggling: false},
-            view: state =>
-                h("main", {}, [
-                    ...leds(state),
-                    h("button", {onClick: copyFromOrigin}, "Copy from 0,0"),
-                    h("button", {onClick: setRainbow}, "Rainbow"),
-                    h("span",{},[
-                        h("input", {type:"checkbox"}, "Toggle"),
-                        "Toggle"
-                    ])
-                ]),
-            node: document.getElementById("app")
-        })
+      function App() {
+        const [grid, setValue] = useState(getRainbow());
+        const copyFromOrigin = useCallback(
+          () =>
+            setValue(
+              Array(8)
+                .fill()
+                .map(() => Array(4).fill(grid[0][0]))
+            ),
+          [grid]
+        );
+        const setRainbow = useCallback(() => setValue(getRainbow), [grid]);
+
+        return html`
+          ${grid.map(
+            row =>
+              html`
+                <${Row} leds=${row} />
+              `
+          )}
+          <button onClick=${copyFromOrigin}>Copy from 0,0</button>
+          <button onClick=${setRainbow}>Rainbow</button>
+        `;
+      }
+
+      render(
+        html`
+          <${App} page="All" />
+        `,
+        document.body
+      );
     </script>
-</head>
-<body>
-    <main id="app"></main>
-</body>
-
+  </head>
+  <body></body>
 </html>
