@@ -36,18 +36,32 @@
           </div>
         `;
 
+      function Api() {
+        const baseUrl = `http://${location.hostname}:9021/api`;
+        const fetchApi = path =>
+          fetch(baseUrl + path, { mode: "cors" }).then(response =>
+            response.json()
+          );
+
+        return {
+          getInfo() {
+            return fetchApi("/info");
+          }
+        };
+      }
+
+      const api = Api();
+
       const App = connect(({ grid, dispatch, info }) => {
         const copyFromOrigin = () => dispatch({ type: "COPY_FROM_ORIGIN" });
         const setRainbow = () => dispatch({ type: "SET_RAINBOW" });
-        const getInfo = () =>
-          fetch("http://localhost:9021/api/info", { mode: "cors" })
-            .then(response => response.json())
-            .then(json =>
-              dispatch({
-                type: "GET_INFO",
-                payload: json
-              })
-            );
+        const getInfo = async () => {
+          const data = await api.getInfo();
+          dispatch({
+            type: "GET_INFO",
+            payload: data
+          });
+        };
 
         return html`
           ${grid.map(
