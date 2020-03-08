@@ -12,12 +12,16 @@
       import {
         h,
         Component,
-        render
+        render,
+        createContext
       } from "https://unpkg.com/preact@latest?module";
 
       import {
         useState,
-        useCallback
+        useCallback,
+        useReducer,
+        useContext,
+        useRef
       } from "https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module";
 
       import htm from "https://unpkg.com/htm?module";
@@ -43,51 +47,107 @@
           );
       }
 
-      const Row = ({ leds }) =>
+      const Context = createContext();
+
+      function Provider({ reducers, initialState, children }) {
+        const [state, dispatch] = useReducer(reducers, initialState);
+
+        return html`
+          <${Context.Provider} value=${{ state, dispatch }}>
+            ${children}
+          <//>
+        `;
+      }
+
+      const connect = component => props => {
+        const { state, dispatch } = useContext(Context);
+
+        return component({
+          ...props,
+          ...state,
+          dispatch
+        });
+      };
+
+      const Row = ({ leds, y }) =>
         html`
-          <div>
+          <div class="row-${y}">
             ${leds.map(
-              led =>
+              (led, x) =>
                 html`
-                  <${Led} ...${led} />
+                  <${Led} ...${led} y=${y} x=${x} />
                 `
             )}
           </div>
         `;
 
-      const Led = ({ color }) =>
-        html`
-          <input type="color" value=${color} />
-        `;
-
-      function App() {
-        const [grid, setValue] = useState(getRainbow());
-        const copyFromOrigin = useCallback(
-          () =>
-            setValue(
-              Array(8)
+      function reducers(state, action) {
+        switch (action.type) {
+          case "COPY_FROM_ORIGIN":
+            return {
+              ...state,
+              grid: Array(8)
                 .fill()
-                .map(() => Array(4).fill(grid[0][0]))
-            ),
-          [grid]
-        );
-        const setRainbow = useCallback(() => setValue(getRainbow), [grid]);
+                .map(() => Array(4).fill(state.grid[0][0]))
+            };
+          case "SET_RAINBOW":
+            return {
+              ...state,
+              grid: getRainbow()
+            };
+          case "SET_COLOR":
+             const { color, x, y } = action.payload;
+            state.grid[y][x] = color;
+            return {
+              ...state
+            };
+          default:
+            return state;
+        }
+      }
+
+      const App = connect(({ grid, dispatch }) => {
+        const copyFromOrigin = () => dispatch({ type: "COPY_FROM_ORIGIN" });
+        const setRainbow = () => dispatch({ type: "SET_RAINBOW" });
 
         return html`
           ${grid.map(
-            row =>
+            (row, y) =>
               html`
-                <${Row} leds=${row} />
+                <${Row} leds=${row} y=${y} />
               `
           )}
           <button onClick=${copyFromOrigin}>Copy from 0,0</button>
           <button onClick=${setRainbow}>Rainbow</button>
         `;
-      }
+      });
+
+      const Led = connect(({ color, dispatch, x, y }) => {
+        const input = useRef(null);
+        const setColor = () =>
+          dispatch({
+            type: "SET_COLOR",
+            payload: { color: input.current && input.current.value, x, y }
+          });
+
+        return html`
+          <input
+            ref=${input}
+            type="color"
+            value=${color}
+            onChange=${setColor}
+          />
+        `;
+      });
 
       render(
         html`
-          <${App} page="All" />
+          <${Provider}
+            reducers=${reducers}
+            initialState=${{ grid: getRainbow() }}
+          >
+            <${App} />
+          <//>
         `,
         document.body
       );
