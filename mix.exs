@@ -53,7 +53,7 @@ defmodule MoodLight.MixProject do
       {:nerves_firmware_ssh, "~> 0.4", targets: @all_targets},
 
       # Dependencies for specific targets
-      {:nerves_system_rpi0, "~> 1.10", runtime: false, targets: :rpi0},
+      {:nerves_system_rpi0, "~> 1.10", runtime: false, targets: :rpi0}
     ]
   end
 

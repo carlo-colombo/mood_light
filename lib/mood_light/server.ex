@@ -15,7 +15,5 @@ defmodule MoodLight.Server do
   plug(:dispatch)
 
   forward("/api", to: MoodLight.API)
-  forward("/public", to: MoodLight.Static)
-
-  match(_, do: send_resp(conn, 404, "oops MoodLigth"))
+  forward("/", to: MoodLight.Static)
 end
