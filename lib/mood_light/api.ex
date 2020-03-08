@@ -2,6 +2,8 @@ defmodule MoodLight.API do
   @moduledoc false
   use Plug.Router
 
+
+  plug(:cors_enabled)
   plug(:match)
   plug(:dispatch)
 
@@ -23,6 +25,11 @@ defmodule MoodLight.API do
   end
 
   match(_, do: send_resp(conn, 404, "oops"))
+
+  defp cors_enabled(conn, _opts) do
+    conn
+    |> put_resp_header("Access-Control-Allow-Origin", "*")
+  end
 
   defp uptime do
     {ut, _} = :erlang.statistics(:wall_clock)
