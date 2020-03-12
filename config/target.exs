@@ -80,6 +80,12 @@ config :mdns_lite,
       protocol: "epmd",
       transport: "tcp",
       port: 4369
+    },
+    %{
+      name: "Mood Light API",
+      protocol: "http",
+      transport: "tcp",
+      port: 9021
     }
   ]
 

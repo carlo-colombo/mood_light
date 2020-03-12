@@ -275,7 +275,7 @@ gamma = [
 ]
 
 config :blinkchain,
-  canvas: {8,4}
+  canvas: {8, 4}
 
 config :blinkchain, :channel0,
   pin: 18,

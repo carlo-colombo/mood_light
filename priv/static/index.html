@@ -37,15 +37,29 @@
         `;
 
       function Api() {
-        const baseUrl = `http://${location.hostname}:9021/api`;
-        const fetchApi = path =>
-          fetch(baseUrl + path, { mode: "cors" }).then(response =>
-            response.json()
-          );
+        // const baseUrl = `http://${location.hostname}:9021/api`;
+        const baseUrl = `http://nerves.local:9021/api`;
+        const fetchApi = (path, opts) =>
+          fetch(baseUrl + path, {
+            mode: "cors",
+            credentials: "same-origin",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              // "Access-Control-Allow-Origin": "*",
+            },
+            ...opts
+          }).then(response => response.json());
 
         return {
           getInfo() {
             return fetchApi("/info");
+          },
+          putGrid(data) {
+            return fetchApi("/grid", {
+              method: "put",
+              body: JSON.stringify(data)
+            });
           }
         };
       }
@@ -62,6 +76,10 @@
             payload: data
           });
         };
+        const setGrid = async data => {
+          await api.putGrid(data);
+          dispatch({ type: "GRID_UPDATED" });
+        };
 
         return html`
           ${grid.map(
@@ -73,6 +91,7 @@
           <button onClick=${copyFromOrigin}>Copy from 0,0</button>
           <button onClick=${setRainbow}>Rainbow</button>
           <button onClick=${getInfo}>Get Info</button>
+          <button onClick=${() => setGrid(grid)}>Set</button>
           <div>
             uptime: ${info.uptime}
           </div>

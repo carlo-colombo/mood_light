@@ -45,12 +45,14 @@ defmodule MoodLight.MixProject do
       {:toolshed, "~> 0.2"},
       {:plug_cowboy, "~> 2.0"},
       {:jason, "~> 1.1"},
+      {:cors_plug, "~> 2.0"},
 
       # Dependencies for all targets except :host
       {:nerves_runtime, "~> 0.6", targets: @all_targets},
       {:nerves_pack, "~> 0.2", targets: @all_targets},
       {:vintage_net_wizard, "~> 0.1", targets: @all_targets},
       {:nerves_firmware_ssh, "~> 0.4", targets: @all_targets},
+      {:blinkchain, "~> 1.0.0", targets: @all_targets},
 
       # Dependencies for specific targets
       {:nerves_system_rpi0, "~> 1.10", runtime: false, targets: :rpi0}

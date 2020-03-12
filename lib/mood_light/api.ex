@@ -2,20 +2,15 @@ defmodule MoodLight.API do
   @moduledoc false
   use Plug.Router
 
+  alias Blinkchain.Color
 
-  plug(:cors_enabled)
+  plug(CORSPlug)
+  plug(:common_headers)
   plug(:match)
   plug(:dispatch)
 
-  get "/foo" do
-    conn
-    |> put_resp_header("content-type", "application/json; charset=utf-8")
-    |> send_resp(200, Jason.encode!(%{ola: :foo}))
-  end
-
   get "/info" do
     conn
-    |> put_resp_header("content-type", "application/json; charset=utf-8")
     |> send_resp(
       200,
       Jason.encode!(%{
@@ -24,11 +19,30 @@ defmodule MoodLight.API do
     )
   end
 
+  put "/grid" do
+    %{"_json" => grid} = conn.params
+
+    spawn(fn ->
+      Blinkchain.set_brightness(0, 2)
+
+      for {row, i} <- Enum.with_index(grid) do
+        for {led, j} <- Enum.with_index(row) do
+          Blinkchain.set_pixel({i, j}, Color.parse(led["color"]))
+        end
+      end
+
+      Blinkchain.render()
+    end)
+
+    conn
+    |> send_resp(201, "{}")
+  end
+
   match(_, do: send_resp(conn, 404, "oops"))
 
-  defp cors_enabled(conn, _opts) do
+  defp common_headers(conn, _opts) do
     conn
-    |> put_resp_header("Access-Control-Allow-Origin", "*")
+    |> put_resp_header("content-type", "application/json; charset=utf-8")
   end
 
   defp uptime do

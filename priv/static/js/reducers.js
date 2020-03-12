@@ -30,8 +30,8 @@ export function getRainbow() {
 }
 export const logsMiddleware = reducers => (state, action) => {
     console.group(action.type);
-    console.info(action.payload);
     console.info(state);
+    console.info("payload:", action.payload);
     const newState = reducers(state, action);
     console.log(newState);
     console.groupEnd();
@@ -45,7 +45,7 @@ export function reducers(state, action) {
                 ...state,
                 grid: Array(8)
                     .fill()
-                    .map(() => Array(4).fill(state.grid[0][0]))
+                    .map(() => Array(4).fill().map(_ => state.grid[0][0]))
             };
         case "SET_RAINBOW":
             return {
@@ -54,7 +54,7 @@ export function reducers(state, action) {
             };
         case "SET_COLOR":
             const { color, x, y } = action.payload;
-            state.grid[y][x] = color;
+            state.grid[y][x] = {color};
             return {
                 ...state
             };

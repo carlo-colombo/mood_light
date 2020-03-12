@@ -29,4 +29,6 @@ config :shoehorn,
 
 if Mix.target() != :host do
   import_config "target.exs"
+
+  import_config "blinkchain.exs"
 end
