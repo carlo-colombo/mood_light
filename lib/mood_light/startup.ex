@@ -6,12 +6,26 @@ defmodule MoodLight.Startup do
 
   alias Blinkchain.Color
 
+  defp frame1(i) do
+    Blinkchain.set_pixel({i, i}, Color.parse("#4dffb1"))
+    Blinkchain.set_pixel({7 - i, i}, Color.parse("#4dffb1"))
+  end
+
+  defp frame2(i) do
+    Blinkchain.set_pixel({i + 1, i}, Color.parse("#ff0000"))
+    Blinkchain.set_pixel({6 - i, i}, Color.parse("#ff0000"))
+  end
+
+  defp reset(_) do
+    Blinkchain.fill({0, 0}, 8, 4, %Blinkchain.Color{})
+  end
+
   def start_link(default) when is_list(default) do
     GenServer.start_link(__MODULE__, default)
   end
 
   defmodule State do
-    defstruct [:timer, :index]
+    defstruct [:timer, :index, :frames]
   end
 
   @impl true
@@ -20,20 +34,27 @@ defmodule MoodLight.Startup do
 
     state = %State{
       timer: ref,
-      index: 0
+      frames:
+        [
+          {0, &reset/1}
+        ] ++
+          (0..3 |> Enum.map(fn x -> {x, &frame1/1} end)) ++
+          (0..3 |> Enum.map(fn x -> {x, &frame2/1} end))
     }
 
     {:ok, state}
   end
 
-  def handle_info(:draw_frame, %{timer: t, index: i}) do
-    Logger.info(":draw_frame #{i}")
+  @impl true
+  def handle_info(:draw_frame, %{timer: t, frames: frames}) do
+    Logger.info(":draw_frame frames left: #{length(frames)}")
 
-    Blinkchain.set_pixel({i, i}, Color.parse("#4dffb1"))
-    Blinkchain.set_pixel({7 - i, i}, Color.parse("#4dffb1"))
+    {{i, f}, frames} = List.pop_at(frames, 0)
+    f.(i)
 
     Blinkchain.render()
-    if i == 3, do: :timer.cancel(t)
-    {:noreply, %State{timer: t, index: i+1}}
+    if length(frames) == 0, do: :timer.cancel(t)
+
+    {:noreply, %State{timer: t, frames: frames}}
   end
 end
