@@ -3,7 +3,7 @@ defmodule MoodLight.MixProject do
 
   @app :mood_light
   @version "0.1.0"
-  @all_targets [:rpi0]
+  @all_targets [:rpi0, :rpi]
 
   def project do
     [
@@ -63,7 +63,8 @@ defmodule MoodLight.MixProject do
       {:blinkchain, "~> 1.0.0", targets: @all_targets},
 
       # Dependencies for specific targets
-      {:nerves_system_rpi0, "~> 1.10", runtime: false, targets: :rpi0}
+      {:nerves_system_rpi0, "~> 1.10", runtime: false, targets: :rpi0},
+      {:nerves_system_rpi, "~> 1.10", runtime: false, targets: :rpi}
     ]
   end
 
