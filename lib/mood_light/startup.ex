@@ -16,7 +16,7 @@ defmodule MoodLight.Startup do
     Blinkchain.set_pixel({6 - i, i}, Color.parse("#ff0000"))
   end
 
-  defp reset(_) do
+  defp reset do
     Blinkchain.fill({0, 0}, 8, 4, %Blinkchain.Color{})
   end
 
@@ -25,6 +25,7 @@ defmodule MoodLight.Startup do
   end
 
   defmodule State do
+    @moduledoc false
     defstruct [:timer, :index, :frames]
   end
 
