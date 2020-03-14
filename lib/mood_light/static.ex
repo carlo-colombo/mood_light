@@ -1,4 +1,5 @@
 defmodule MoodLight.Static do
+  @moduledoc false
   use Plug.Builder
 
   plug(:append_index)

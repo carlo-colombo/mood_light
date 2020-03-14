@@ -3,13 +3,11 @@ defmodule MoodLight.Server do
 
   use Plug.Router
 
-  plug(Plug.Logger)
+  if Mix.env() == :dev do
+    use Plug.Debugger, otp_app: :my_app
+  end
 
-  plug(Plug.Parsers,
-    parsers: [:urlencoded, :json],
-    pass: ["application/json"],
-    json_decoder: Jason
-  )
+  plug(Plug.Logger)
 
   plug(:match)
   plug(:dispatch)

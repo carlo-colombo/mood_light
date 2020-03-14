@@ -31,6 +31,17 @@ defmodule MoodLight.Application do
       # Children that only run on the host
       # Starts a worker by calling: MoodLight.Worker.start_link(arg)
       # {MoodLight.Worker, arg},
+      %{
+        id: DevMode.Watcher,
+        start:
+          {DevMode.Watcher, :start_link,
+           [
+             [
+               dirs: ["priv", "lib"],
+               backend: :fs_poll
+             ]
+           ]}
+      }
     ]
   end
 
@@ -43,7 +54,7 @@ defmodule MoodLight.Application do
     ]
   end
 
-  def target() do
+  def target do
     Application.get_env(:mood_light, :target)
   end
 end

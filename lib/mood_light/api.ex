@@ -4,10 +4,20 @@ defmodule MoodLight.API do
 
   alias Blinkchain.Color
 
+  plug(Plug.Parsers,
+    parsers: [:urlencoded, :json],
+    pass: ["application/json"],
+    json_decoder: Jason
+  )
+
+
+
   plug(CORSPlug)
   plug(:common_headers)
+
   plug(:match)
   plug(:dispatch)
+
 
   get "/info" do
     conn
@@ -49,15 +59,13 @@ defmodule MoodLight.API do
     {ut, _} = :erlang.statistics(:wall_clock)
     {d, {h, m, s}} = :calendar.seconds_to_daystime(div(ut, 1000))
 
-    Enum.filter(
-      [
-        d > 0 && "#{d} days, ",
-        d + h > 0 && "#{h} hours, ",
-        d + h + m > 0 && "#{m} minutes and ",
-        "#{s} seconds"
-      ],
-      & &1
-    )
+    [
+      d > 0 && "#{d} days, ",
+      d + h > 0 && "#{h} hours, ",
+      d + h + m > 0 && "#{m} minutes and ",
+      "#{s} seconds"
+    ]
+    |> Enum.filter(& &1)
     |> Enum.join()
   end
 end

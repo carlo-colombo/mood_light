@@ -10,6 +10,8 @@ import {
 import htm from "https://unpkg.com/htm?module";
 const html = htm.bind(h);
 
+console.log('asdasd')
+
 const rainbow = [
     "#9400d3",
     "#4b0082",

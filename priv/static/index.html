@@ -1,40 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/purecss@1.0.1/build/pure-min.css"
-      integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47"
-      crossorigin="anonymous"
-    />
-    <script type="module">
-      import { h, render } from "https://unpkg.com/preact@latest?module";
 
-      import { useRef } from "https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module";
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mood Light</title>
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css"
+    integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47" crossorigin="anonymous" />
+  <script type="module">
+    import { h, render } from "https://unpkg.com/preact@latest?module";
 
-      import htm from "https://unpkg.com/htm?module";
-      const html = htm.bind(h);
+    import { useRef } from "https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module";
 
-      import {
-        reducers,
-        Provider,
-        connect,
-        getRainbow,
-        logsMiddleware
-      } from "./js/reducers.js";
+    import htm from "https://unpkg.com/htm?module";
+    const html = htm.bind(h);
 
-      const Row = ({ leds, y }) =>
-        html`
+    import {
+      reducers,
+      Provider,
+      connect,
+      getRainbow,
+      logsMiddleware
+    } from "./js/reducers.js";
+
+    const Row = ({ leds, y }) =>
+      html`
           <div class="row-${y}">
             ${leds.map(
-              (led, x) =>
-                html`
+        (led, x) =>
+          html`
                   <${Led} ...${led} y=${y} x=${x} />
                 `
-            )}
+      )}
           </div>
         `;
+
 
       function Api() {
         // const baseUrl = `http://${location.hostname}:9021/api`;
@@ -64,7 +63,8 @@
         };
       }
 
-      const api = Api();
+
+    const api = Api();
 
       const App = connect(({ grid, dispatch, info }) => {
         const copyFromOrigin = () => dispatch({ type: "COPY_FROM_ORIGIN" });
@@ -81,13 +81,14 @@
           dispatch({ type: "GRID_UPDATED" });
         };
 
-        return html`
+
+      return html`
           ${grid.map(
-            (row, y) =>
-              html`
+        (row, y) =>
+          html`
                 <${Row} leds=${row} y=${y} />
               `
-          )}
+      )}
           <button onClick=${copyFromOrigin}>Copy from 0,0</button>
           <button onClick=${setRainbow}>Rainbow</button>
           <button onClick=${getInfo}>Get Info</button>
@@ -96,17 +97,17 @@
             uptime: ${info.uptime}
           </div>
         `;
-      });
+    });
 
-      const Led = connect(({ color, dispatch, x, y }) => {
-        const input = useRef(null);
-        const setColor = () =>
-          dispatch({
-            type: "SET_COLOR",
-            payload: { color: input.current && input.current.value, x, y }
-          });
+    const Led = connect(({ color, dispatch, x, y }) => {
+      const input = useRef(null);
+      const setColor = () =>
+        dispatch({
+          type: "SET_COLOR",
+          payload: { color: input.current && input.current.value, x, y }
+        });
 
-        return html`
+      return html`
           <input
             ref=${input}
             type="color"
@@ -114,10 +115,10 @@
             onChange=${setColor}
           />
         `;
-      });
+    });
 
-      render(
-        html`
+    render(
+      html`
           <${Provider}
             reducers=${logsMiddleware(reducers)}
             initialState=${{ grid: getRainbow(), info: {} }}
@@ -125,9 +126,11 @@
             <${App} />
           <//>
         `,
-        document.body
-      );
-    </script>
-  </head>
-  <body></body>
+      document.body
+    );
+  </script>
+</head>
+
+<body></body>
+
 </html>

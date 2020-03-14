@@ -27,6 +27,9 @@ config :shoehorn,
   init: [:nerves_runtime, :nerves_pack],
   app: Mix.Project.config()[:app]
 
+config :blinkchain,
+  canvas: {8, 4}
+
 if Mix.target() != :host do
   import_config "target.exs"
 
