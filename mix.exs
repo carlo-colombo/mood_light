@@ -34,7 +34,7 @@ defmodule MoodLight.MixProject do
       extra_applications: [
         :logger,
         :runtime_tools,
-        :inets
+        :inets,
       ]
     ]
   end
@@ -51,8 +51,8 @@ defmodule MoodLight.MixProject do
       {:jason, "~> 1.1"},
       {:cors_plug, "~> 2.0"},
       {:credo, "~> 1.3", only: [:dev, :test], runtime: false},
-      {:blinkchain, "~> 1.0"},
-      # {:file_system, "~> 0.2", only: [:dev, :test], runtime: false},
+      {:blinkchain, "~> 1.0", runtime: false},
+      {:file_system, "~> 0.2", runtime: false},
 
 
       # Dependencies for all targets except :host
