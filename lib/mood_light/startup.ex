@@ -35,12 +35,11 @@ defmodule MoodLight.Startup do
 
     state = %State{
       timer: ref,
-      frames:
-        [
-          {0, &reset/1}
-        ] ++
-          (0..3 |> Enum.map(fn x -> {x, &frame1/1} end)) ++
-          (0..3 |> Enum.map(fn x -> {x, &frame2/1} end))
+      frames: [
+        {&reset/0}
+        | (List.duplicate(&frame1/1, 4) |> Enum.with_index()) ++
+            (List.duplicate(&frame2/1, 4) |> Enum.with_index())
+      ]
     }
 
     {:ok, state}
@@ -50,11 +49,19 @@ defmodule MoodLight.Startup do
   def handle_info(:draw_frame, %{timer: t, frames: frames}) do
     Logger.info(":draw_frame frames left: #{length(frames)}")
 
-    {{i, f}, frames} = List.pop_at(frames, 0)
-    f.(i)
+    frames =
+      case List.pop_at(frames, 0) do
+        {{frame, i}, frames} ->
+          frame.(i)
+          frames
+
+        {{frame}, frames} ->
+          frame.()
+          frames
+      end
 
     Blinkchain.render()
-    if length(frames) == 0, do: :timer.cancel(t)
+    if frames == [], do: :timer.cancel(t)
 
     {:noreply, %State{timer: t, frames: frames}}
   end
